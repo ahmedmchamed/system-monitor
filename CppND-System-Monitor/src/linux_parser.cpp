@@ -488,4 +488,3 @@ long LinuxParser::UpTime(int pid) {
 		return pid_uptime;
 
 }
-
