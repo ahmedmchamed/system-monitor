@@ -274,7 +274,7 @@ long LinuxParser::IdleJiffies() {
 vector<string> LinuxParser::CpuUtilization() { 
 
 		//Declaring strings for the getline operation
-		string line, value;
+		string cpu, line, value;
 		//Vector to hold the aggregate cpu values
 		vector<string> processes;
 		//Vector to return the cpu percentage calculation
@@ -338,6 +338,8 @@ int LinuxParser::TotalProcesses() {
 		while(getline(input, line)) {
 				if (line.find("processes") != string::npos) {
 						processNumber.push_back(line);
+				} else {
+					return 0;
 				}
 		}
 		
@@ -467,7 +469,7 @@ string LinuxParser::User(int pid) {
 }
 
 // TODO: Read and return the uptime of a process
-long LinuxParser::UpTime(int pid) {
+long int LinuxParser::UpTime(int pid) {
 
 		string line, value;
 		//Will use vector to extract uptime (21st) element
