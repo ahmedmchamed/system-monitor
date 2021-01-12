@@ -13,6 +13,27 @@ using std::string;
 using std::to_string;
 using std::vector;
 using std::ifstream;
+using namespace LinuxParser;
+
+// vector<long> jiffiesHelper() {
+
+// 	string line, cpu, value;
+// 	vector<long> processes;
+
+// 	ifstream input(kProcDirectory + kStatFilename);
+
+// 	std::getline(input, line);
+// 	std::istringstream lineStream(line);
+
+// 	lineStream >> cpu;
+
+// 	while(lineStream >> value) {
+// 		processes.push_back(stol(value));
+// 	}
+
+// 	if (processes.begin() != processes.end()) return processes;
+
+// }
 
 // DONE: An example of how to read data from the filesystem
 string LinuxParser::OperatingSystem() {
@@ -283,48 +304,54 @@ vector<string> LinuxParser::CpuUtilization() {
 		ifstream input(kProcDirectory + kStatFilename);
 
 		getline(input, line);
-		std::istringstream i_input(line);
+		std::istringstream cpuDetails(line);
 
-		while (i_input >> value) {
+		cpuDetails >> cpu;
+
+		while (cpuDetails >> value) {
 				processes.push_back(value);
 		}
 
+		if (processes.begin() != processes.end()) {
+			return processes;
+		}
+
 		//Declaring long objects to hold the converted cpu jiffies
-		long user{0}, nice{0}, system{0}, idle{0}, iowait{0}, irq{0},
-			   softirq{0}, steal{0}, guest{0}, guest_nice{0};
+		// long user{0}, nice{0}, system{0}, idle{0}, iowait{0}, irq{0},
+		// 	   softirq{0}, steal{0}, guest{0}, guest_nice{0};
 
-		user = stol(processes[1]);
-		nice = stol(processes[2]);
-		system = stol(processes[3]);
-		idle = stol(processes[4]);
-		iowait = stol(processes[5]);
-		irq = stol(processes[6]);
-		softirq = stol(processes[7]);
-		steal = stol(processes[8]);
-		guest = stol(processes[9]);
-		guest_nice = stol(processes[10]);
+		// user = stol(processes[1]);
+		// nice = stol(processes[2]);
+		// system = stol(processes[3]);
+		// idle = stol(processes[4]);
+		// iowait = stol(processes[5]);
+		// irq = stol(processes[6]);
+		// softirq = stol(processes[7]);
+		// steal = stol(processes[8]);
+		// guest = stol(processes[9]);
+		// guest_nice = stol(processes[10]);
 
-		//Objects to calculate the cpu utilisation percentage as per Stack example
-		long idle_jiffies{0}, non_idle_jiffies{0}, total{0}, cpu_utilisation{0};
+		// //Objects to calculate the cpu utilisation percentage as per Stack example
+		// long idle_jiffies{0}, non_idle_jiffies{0}, total{0}, cpu_utilisation{0};
 
-		//Idle calculation
-		idle_jiffies = idle + iowait;
+		// //Idle calculation
+		// idle_jiffies = idle + iowait;
 
-		//Non idle calculation
-		non_idle_jiffies = user + nice + system + irq + softirq + steal;
+		// //Non idle calculation
+		// non_idle_jiffies = user + nice + system + irq + softirq + steal;
 
-		//Total calculation
-		total = idle_jiffies + non_idle_jiffies;
+		// //Total calculation
+		// total = idle_jiffies + non_idle_jiffies;
 
-		cpu_utilisation = (total - idle) / total;
+		// cpu_utilisation = (total - idle) / total;
 
-		//Converting the cpu utilisation value above into a string to
-		//push back into the vector to be returned
-		string cpu_utilisation_string(to_string(cpu_utilisation));
+		// //Converting the cpu utilisation value above into a string to
+		// //push back into the vector to be returned
+		// string cpu_utilisation_string(to_string(cpu_utilisation));
 		
-		cpu_percentage.push_back(cpu_utilisation_string);
+		// cpu_percentage.push_back(cpu_utilisation_string);
 
-		return cpu_percentage;
+		// return cpu_percentage;
 
 }
 
