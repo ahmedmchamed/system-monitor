@@ -77,7 +77,7 @@ float LinuxParser::MemoryUtilization() {
 		//key, unit strings to read each item per line
 		string key, value, unit;
 		//int values to store the actual memory numbers
-		float memtotal, memfree, memavailable;
+		float memtotal{0.0}, memfree{0.0}, memavailable{0.0};
 		//fstream for the memmory utlisation file
 		ifstream input(kProcDirectory + kMeminfoFilename);
 		//vector to store the memory allocation values
@@ -96,7 +96,7 @@ float LinuxParser::MemoryUtilization() {
 //		memavailable = std::stof(sizes[2]);
 
 		//Calculate total memory allocation
-		float memory;
+		float memory{0.0};
 		memory = (memtotal - memfree) / memtotal;
 
 		return memory;
@@ -117,7 +117,7 @@ long LinuxParser::UpTime() {
 				}
 		}
 
-		long uptime, idle;
+		long uptime{0}, idle{0};
 
 		uptime = stol(uptime_value);
 //		idle = std::stol(idle_value);
@@ -141,7 +141,8 @@ long LinuxParser::Jiffies() {
 				processes.push_back(label);
 		
 		//Declaring labels for each jiffy
-		long user, nice, system, idle, iowait, irq, softirq, steal, guest, guest_nice;
+		long user{0}, nice{0}, system{0}, idle{0}, iowait{0}, irq{0}, 
+		softirq{0}, steal{0}, guest{0}, guest_nice{0};
 
 		//Assigning a label for each jiffy from the processes vector
 		user = stol(processes[1]);
@@ -178,7 +179,7 @@ long LinuxParser::ActiveJiffies(int pid) {
 		}
 
 		//Declaring the required jiffy objects for the PID
-		long utime, stime, cutime, cstime, starttime;
+		long utime{0}, stime{0}, cutime{0}, cstime{0}, starttime{0};
 
 		utime = stol(processes[13]);
 		stime = stol(processes[14]);
@@ -211,10 +212,11 @@ long LinuxParser::ActiveJiffies() {
 		}
 
 		//Assigning the correct label to each element
-		long user, nice, system, idle, iowait, irq, softirq, steal, guest, guest_nice;
+		long user{0}, nice{0}, system{0}, idle{0}, iowait{0}, irq{0}, 
+		softirq{0}, steal{0}, guest{0}, guest_nice{0};
 
-		long user_time, nice_time, idle_all_time, system_all_time, 
-			 virt_all_time, total_time;
+		long user_time{0}, nice_time{0}, idle_all_time{0}, system_all_time{0}, 
+			 virt_all_time{0}, total_time{0};
 
 		user = stol(processes[1]);
 		nice = stol(processes[2]);
@@ -288,8 +290,8 @@ vector<string> LinuxParser::CpuUtilization() {
 		}
 
 		//Declaring long objects to hold the converted cpu jiffies
-		long user, nice, system, idle, iowait, irq,
-			   softirq, steal, guest, guest_nice;
+		long user{0}, nice{0}, system{0}, idle{0}, iowait{0}, irq{0},
+			   softirq{0}, steal{0}, guest{0}, guest_nice{0};
 
 		user = stol(processes[1]);
 		nice = stol(processes[2]);
@@ -303,7 +305,7 @@ vector<string> LinuxParser::CpuUtilization() {
 		guest_nice = stol(processes[10]);
 
 		//Objects to calculate the cpu utilisation percentage as per Stack example
-		long idle_jiffies, non_idle_jiffies, total, cpu_utilisation;
+		long idle_jiffies{0}, non_idle_jiffies{0}, total{0}, cpu_utilisation{0};
 
 		//Idle calculation
 		idle_jiffies = idle + iowait;
