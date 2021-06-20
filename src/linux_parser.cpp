@@ -3,6 +3,7 @@
 #include <vector>
 #include <filesystem>
 
+#include "system.h"
 #include "linux_parser.h"
 
 using std::stof;
@@ -131,13 +132,15 @@ float LinuxParser::MemoryUtilization()
 			}
 	}
 	//Assign values to each respective memory allocation
-	memtotal = stof(sizes[0]);
-	memfree = stof(sizes[1]);
-	//memavailable = std::stof(sizes[2]);
+	if (!sizes.empty())
+	{
+		memtotal = stof(sizes.at(0));
+		memfree = stof(sizes.at(1));
+		//memavailable = std::stof(sizes[2]);
+	}
 
 	//Calculate total memory allocation
-	float memory;
-	memory = (memtotal - memfree) / memtotal;
+	float memory = (memtotal - memfree) / memtotal;
 
 	return memory;
 }
@@ -164,7 +167,6 @@ long LinuxParser::UpTime()
 //		idle = std::stol(idle_value);
 
 	return uptime;
-
 }
 
 // TODO: Read and return the number of jiffies for the system
@@ -183,20 +185,17 @@ long LinuxParser::Jiffies()
 			processes.push_back(label);
 	
 	//Declaring labels for each jiffy
-	long user{0}, nice{0}, system{0}, idle{0}, iowait{0}, irq{0}, 
-	softirq{0}, steal{0}, guest{0}, guest_nice{0};
-
 	//Assigning a label for each jiffy from the processes vector
-	user = stol(processes[1]);
-	nice = stol(processes[2]);
-	system = stol(processes[3]);
-	idle = stol(processes[4]);
-	iowait = stol(processes[5]);
-	irq = stol(processes[6]);
-	softirq = stol(processes[7]);
-	steal = stol(processes[8]);
-	guest = stol(processes[9]);
-	guest_nice = stol(processes[10]);
+	long user = stol(processes.at(1));
+	long nice = stol(processes.at(2));
+	long system = stol(processes.at(3));
+	long idle = stol(processes.at(4));
+	long iowait = stol(processes.at(5));
+	long irq = stol(processes.at(6));
+	long softirq = stol(processes.at(7));
+	long steal = stol(processes.at(8));
+	long guest = stol(processes.at(9));
+	long guest_nice = stol(processes.at(10));
 
 	jiffies_number = user + nice + system + idle + iowait 
 			+ irq + softirq + steal + guest + guest_nice;
@@ -222,13 +221,11 @@ long LinuxParser::ActiveJiffies(int pid)
 	}
 
 	//Declaring the required jiffy objects for the PID
-	long utime{0}, stime{0}, cutime{0}, cstime{0}, starttime{0};
-
-	utime = stol(processes[13]);
-	stime = stol(processes[14]);
-	cutime = stol(processes[15]);
-	cstime = stol(processes[16]);
-	starttime = stol(processes[21]);
+	long utime = stol(processes.at(13));
+	long stime = stol(processes.at(14));
+	long cutime = stol(processes.at(15));
+	long cstime = stol(processes.at(16));
+	long starttime = stol(processes.at(21));
 
 	long pid_active_total{0};
 
@@ -241,22 +238,22 @@ long LinuxParser::ActiveJiffies(int pid)
 // TODO: Read and return the number of active jiffies for the system
 long LinuxParser::ActiveJiffies()
 {
-	// string line, label;
-	// vector<string> processes;
+	string line, label;
+	vector<string> processes;
 
-	// ifstream input(kProcDirectory + kStatFilename);
+	ifstream input(kProcDirectory + kStatFilename);
 
-	// //only need the aggregate info, and so discarding the while loop
+	//only need the aggregate info, and so discarding the while loop
 	// getline(input, line);
 	// std::istringstream i_input(line);
 	// while (i_input >> label) {
 	// 		processes.push_back(label);
 	// }
-// item{0}, idle{0}, iowait{0}, irq{0}, 
+	// long item{0}, idle{0}, iowait{0}, irq{0}, 
 	// softirq{0}, steal{0}, guest{0}, guest_nice{0};
 
 	// long user_time{0}, nice_time{0}, idle_all_time{0}, system_all_time{0}, 
-	// 	 virt_all_time{0}, total_time{0};
+	// 	virt_all_time{0}, total_time{0};
 
 	// user = stol(processes[1]);
 	// nice = stol(processes[2]);
@@ -282,9 +279,9 @@ long LinuxParser::ActiveJiffies()
 
 	// return total_time;
 
-	vector<string> processes = CpuUtilization();
+	// vector<string> processes = CpuUtilization();
 
-	long userTime = stol(processes[kUser_]) - stol(processes[kGuest_]); 
+	// long userTime = stol(processes[kUser_]) - stol(processes[kGuest_]); 
 	// long niceTime = stol()
 }
 
