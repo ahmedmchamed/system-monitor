@@ -14,28 +14,6 @@ using std::to_string;
 using std::vector;
 using std::ifstream;
 
-// vector<long> jiffiesHelper() 
-//{
-
-// 	string line, cpu, value;
-// 	vector<long> processes;
-
-// 	ifstream input(kProcDirectory + kStatFilename);
-
-// 	std::getline(input, line);
-// 	std::istringstream lineStream(line);
-
-// 	lineStream >> cpu;
-
-// 	while(lineStream >> value) {
-// 		processes.push_back(stol(value));
-// 	}
-
-// 	if (processes.begin() != processes.end()) return processes;
-
-// }
-
-// DONE: An example of how to read data from the filesystem
 string LinuxParser::OperatingSystem() 
 {
 	string line;
@@ -62,7 +40,6 @@ string LinuxParser::OperatingSystem()
 	return value;
 }
 
-// DONE: An example of how to read data from the filesystem
 string LinuxParser::Kernel() 
 {
 	string os, kernel;
@@ -80,21 +57,7 @@ vector<int> LinuxParser::Pids()
 {
 	vector<int> pids;
 	string pidDirectory;
-	// DIR* directory = opendir(kProcDirectory.c_str());
-	// dirent* file;
-	// while ((file = readdir(directory)) != nullptr) {
-    // // Is this a directory?
-	// 	if (file->d_type == DT_DIR) {
-	// 	// Is every character of the name a digit?
-	// 		string filename(file->d_name);
-	// 		if (std::all_of(filename.begin(), filename.end(), isdigit))
-	// 		{
-	// 			int pid = stoi(filename);
-	// 			pids.push_back(pid);
-	// 		}
-	// 	}
-	// }
-	// closedir(directory);
+
 	for (auto &entry : std::filesystem::directory_iterator(kProcDirectory))
 	{
 		if (entry.is_directory())
@@ -102,7 +65,7 @@ vector<int> LinuxParser::Pids()
 			pidDirectory = entry.path().filename().string();
 			if (std::all_of(pidDirectory.begin(), pidDirectory.end(), isdigit))
 			{
-				int pid = stoi(pidDirectory);
+				int pid {stoi(pidDirectory)};
 				pids.push_back(pid);
 			}
 		}
@@ -110,26 +73,35 @@ vector<int> LinuxParser::Pids()
 	return pids;
 }
 
-// TODO: Read and return the system memory utilization
 float LinuxParser::MemoryUtilization() 
 { 
+	//Flag to stop parsing the file
+	bool dataFound {false};
 	//line string to read the stream from the file
 	string line;
 	//key, unit strings to read each item per line
 	string key, value, unit;
 	//int values to store the actual memory numbers
-	float memtotal{0.0f}, memfree{0.0f}, memavailable{0.0f};
-	//fstream for the memmory utlisation filei
-	ifstream input(kProcDirectory + kMeminfoFilename);
+	float memtotal {0.0f}, memfree {0.0f}, memavailable {0.0f};
+	//fstream for the memmory utlisation file
+	ifstream memoryUtilisation {kProcDirectory + kMeminfoFilename};
 	//vector to store the memory allocation values
 	vector<string> sizes{};
 
-	if (input.is_open()) {
-			while (getline(input, line)) {
-					std::istringstream i_input(line);
-					i_input >> key >> value >> unit;
-					sizes.push_back(value);
+	if (memoryUtilisation.is_open())
+	{
+		while (getline(memoryUtilisation, line) && dataFound)
+		{
+			std::istringstream inputStream {line};
+			inputStream >> key >> value >> unit;
+
+			sizes.push_back(value);
+
+			if (key == "Buffers:")
+			{
+				dataFound = true;
 			}
+		}
 	}
 	//Assign values to each respective memory allocation
 	if (!sizes.empty())
@@ -140,7 +112,7 @@ float LinuxParser::MemoryUtilization()
 	}
 
 	//Calculate total memory allocation
-	float memory = (memtotal - memfree) / memtotal;
+	float memory {(memtotal - memfree) / memtotal};
 
 	return memory;
 }
