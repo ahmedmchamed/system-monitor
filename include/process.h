@@ -18,7 +18,6 @@ class Process {
         long int UpTime();
         bool operator<(Process const& rhs) const;
 
-  //Declare any necessary private members
     private:
         int pid {0};
         std::string username;
