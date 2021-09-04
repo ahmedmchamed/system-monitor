@@ -6,8 +6,8 @@
 #include <regex>
 #include <string>
 
-namespace LinuxParser {
-  
+namespace LinuxParser
+{
   // Paths
   const std::string kProcDirectory {"/proc/"};
   const std::string kCmdlineFilename {"/cmdline"};
@@ -42,9 +42,8 @@ namespace LinuxParser {
     kGuest_,
     kGuestNice_
   };
-  //IS THIS CHANGE CORRECT - NOTE
+
   std::vector<std::string> CpuUtilization();
-  //float CpuUtilization();
   long Jiffies();
   long ActiveJiffies();
   long ActiveJiffies(int pid);
@@ -56,7 +55,6 @@ namespace LinuxParser {
   std::string Uid(int pid);
   std::string User(int pid);
   long int UpTime(int pid);
-
 };  // namespace LinuxParser
 
 #endif

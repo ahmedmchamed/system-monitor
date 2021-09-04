@@ -18,7 +18,8 @@ string LinuxParser::OperatingSystem()
 	string line;
 	string key;
 	string value;
-	ifstream filestream(kOSPath);
+	ifstream filestream {kOSPath};
+
 	if (filestream.is_open()) 
 	{
 		while (std::getline(filestream, line))
@@ -36,6 +37,7 @@ string LinuxParser::OperatingSystem()
 			}
 		}
 	}
+
 	return value;
 }
 
@@ -43,12 +45,15 @@ string LinuxParser::Kernel()
 {
 	string os, kernel;
 	string line;
-	ifstream stream(kProcDirectory + kVersionFilename);
-	if (stream.is_open()) {
+	ifstream stream {kProcDirectory + kVersionFilename};
+
+	if (stream.is_open())
+	{
 		std::getline(stream, line);
 		std::istringstream linestream(line);
 		linestream >> os >> kernel;
 	}
+
 	return kernel;
 }
 
@@ -81,7 +86,7 @@ float LinuxParser::MemoryUtilization()
 	//key, unit strings to read each item per line
 	string key, value, unit;
 	//int values to store the actual memory numbers
-	float memtotal {0.0f}, memfree {0.0f}, memavailable {0.0f};
+	float memtotal {0.0f}, memfree {0.0f};
 	//fstream for the memmory utlisation file
 	ifstream memoryUtilisation {kProcDirectory + kMeminfoFilename};
 	//vector to store the memory allocation values
@@ -102,8 +107,6 @@ float LinuxParser::MemoryUtilization()
 			}
 		}
 	}
-
-	memoryUtilisation.close();
 
 	//Assign values to each respective memory allocation
 	if (!sizes.empty())
@@ -149,13 +152,15 @@ long LinuxParser::Jiffies()
 
 	ifstream input(kProcDirectory + kStatFilename);
 
-	getline(input, line);
-	std::istringstream i_input(line);
-
-	while (i_input >> label)
+	if (input.is_open() && getline(input, line))
 	{
-		processes.push_back(label);
-	}
+		std::istringstream i_input(line);
+
+		while (i_input >> label)
+		{
+			processes.push_back(label);
+		}
+	};
 
 	//Declaring labels for each jiffy
 	//Assigning a label for each jiffy from the processes vector
@@ -215,45 +220,47 @@ long LinuxParser::ActiveJiffies()
 	ifstream input(kProcDirectory + kStatFilename);
 
 	//only need the aggregate info, and so discarding the while loop
-	// getline(input, line);
-	// std::istringstream i_input(line);
-	// while (i_input >> label) {
-	// 		processes.push_back(label);
-	// }
-	// long item{0}, idle{0}, iowait{0}, irq{0}, 
-	// softirq{0}, steal{0}, guest{0}, guest_nice{0};
+	if (input.is_open() && getline(input, line))
+	{
+		std::istringstream i_input(line);
+		while (i_input >> label)
+		{
+			processes.push_back(label);
+		}
+	};
 
-	// long user_time{0}, nice_time{0}, idle_all_time{0}, system_all_time{0}, 
-	// 	virt_all_time{0}, total_time{0};
+	long user {0}, nice {0}, system {0}, idle{0}, iowait{0}, irq{0}, 
+	softirq{0}, steal{0}, guest{0}, guest_nice{0};
 
-	// user = stol(processes[1]);
-	// nice = stol(processes[2]);
-	// system = stol(processes[3]);
-	// idle = stol(processes[4]);
-	// iowait = stol(processes[5]);
-	// irq = stol(processes[6]);
-	// softirq = stol(processes[7]);
-	// steal = stol(processes[8]);
-	// guest = stol(processes[9]);
-	// guest_nice = stol(processes[10]);
+	long user_time{0}, nice_time{0}, idle_all_time{0}, system_all_time{0}, 
+		virt_all_time{0}, total_time{0};
 
-	// //Calculating the active times, using aggregate values
-	// user_time = user - guest;
-	// nice_time = nice - guest_nice;
-	// idle_all_time = idle + iowait;
-	// system_all_time = system + irq + softirq;
-	// virt_all_time = guest + guest_nice;
+	if (!processes.empty())
+	{
+		user = stol(processes.at(1));
+		nice = stol(processes.at(2));
+		system = stol(processes.at(3));
+		idle = stol(processes.at(4));
+		iowait = stol(processes.at(5));
+		irq = stol(processes.at(6));
+		softirq = stol(processes.at(7));
+		steal = stol(processes.at(8));
+		guest = stol(processes.at(9));
+		guest_nice = stol(processes.at(10));
+	}
 
-	// //Calculating total active time
-	// total_time = user_time + nice_time + idle_all_time + system_all_time + 
-	// 		virt_all_time;
+	//Calculating the active times, using aggregate values
+	user_time = user - guest;
+	nice_time = nice - guest_nice;
+	idle_all_time = idle + iowait;
+	system_all_time = system + irq + softirq;
+	virt_all_time = guest + guest_nice;
 
-	// return total_time;
+	//Calculating total active time
+	total_time = user_time + nice_time + idle_all_time + system_all_time + 
+			virt_all_time;
 
-	// vector<string> processes = CpuUtilization();
-
-	// long userTime = stol(processes[kUser_]) - stol(processes[kGuest_]); 
-	// long niceTime = stol()
+	return total_time;
 }
 
 // TODO: Read and return the number of idle jiffies for the system
@@ -266,11 +273,13 @@ long LinuxParser::IdleJiffies()
 	ifstream input(kProcDirectory + kStatFilename);
 
 	//Going to avoid using a vector for this one, for a change
-	getline(input, line);
-	std::istringstream i_input(line);
+	if (input.is_open() && getline(input, line))
+	{
+		std::istringstream i_input(line);
 
-	i_input >> cpu_label >> user >> nice >> system >> idle
-			>> iowait >> irq >> softirq >> steal >> guest >> guest_nice;
+		i_input >> cpu_label >> user >> nice >> system >> idle
+				>> iowait >> irq >> softirq >> steal >> guest >> guest_nice;
+	};
 
 	//Defining and calculating the idle time, using aggregate values
 	long idle_time {stol(idle) + stol(iowait)};
@@ -286,62 +295,25 @@ vector<string> LinuxParser::CpuUtilization()
 	string cpu, line, value;
 	//Vector to hold the aggregate cpu values
 	vector<string> processes;
-	//Vector to return the cpu percentage calculation
-	vector<string> cpu_percentage;
 
 	ifstream input(kProcDirectory + kStatFilename);
 
-	getline(input, line);
-	std::istringstream cpuDetails(line);
-
-	cpuDetails >> cpu;
-
-	while (cpuDetails >> value)
+	if (input.is_open() && getline(input, line))
 	{
+		std::istringstream cpuDetails(line);
+
+		cpuDetails >> cpu;
+
+		while (cpuDetails >> value)
+		{
 			processes.push_back(value);
+		}
 	}
 
-	if (processes.begin() != processes.end())
+	if (!processes.empty())
 	{
 		return processes;
 	}
-
-	//Declaring long objects to hold the converted cpu jiffies
-	// long user{0}, nice{0}, system{0}, idle{0}, iowait{0}, irq{0},
-	// 	   softirq{0}, steal{0}, guest{0}, guest_nice{0};
-
-	// user = stol(processes[1]);
-	// nice = stol(processes[2]);
-	// system = stol(processes[3]);
-	// idle = stol(processes[4]);
-	// iowait = stol(processes[5]);
-	// irq = stol(processes[6]);
-	// softirq = stol(processes[7]);
-	// steal = stol(processes[8]);
-	// guest = stol(processes[9]);
-	// guest_nice = stol(processes[10]);
-
-	// //Objects to calculate the cpu utilisation percentage as per Stack example
-	// long idle_jiffies{0}, non_idle_jiffies{0}, total{0}, cpu_utilisation{0};
-
-	// //Idle calculation
-	// idle_jiffies = idle + iowait;
-
-	// //Non idle calculation
-	// non_idle_jiffies = user + nice + system + irq + softirq + steal;
-
-	// //Total calculation
-	// total = idle_jiffies + non_idle_jiffies;
-
-	// cpu_utilisation = (total - idle) / total;
-
-	// //Converting the cpu utilisation value above into a string to
-	// //push back into the vector to be returned
-	// string cpu_utilisation_string(to_string(cpu_utilisation));
-	
-	// cpu_percentage.push_back(cpu_utilisation_string);
-
-	// return cpu_percentage;
 }
 
 // TODO: Read and return the total number of processes
@@ -458,7 +430,7 @@ string LinuxParser::Uid(int pid)
 
 		if (!line.find("Uid"))
 		{
-				i_input >> uid_label >> uid;
+			i_input >> uid_label >> uid;
 		}
 	}
 

@@ -13,40 +13,41 @@ using std::to_string;
 using std::vector;
 
 //Return this process's ID
-Process::Process(int pid): pid(pid) {}
+Process::Process(int processId): pid(processId) {}
 
-int Process::Pid() { 
+int Process::Pid()
+{ 
     return pid;
 }
 
 //Return this process's CPU utilization
-float Process::CpuUtilization() 
+long Process::CpuUtilization() 
 {
-    return cpuUtilization;
+    return LinuxParser::ActiveJiffies(pid);
 }
 
 //Return the command that generated this process
 string Process::Command()
 { 
-    return commandName; 
+    return LinuxParser::Command(pid); 
 }
 
 //Return this process's memory utilization
 string Process::Ram()
 { 
-    return ramUsage; 
+    return LinuxParser::Ram(pid); 
 }
 
 //Return the user (name) that generated this process
 string Process::User()
 { 
-    return username;
+    return LinuxParser::User(pid);
 }
 
 //Return the age of this process (in seconds)
 long int Process::UpTime()
 { 
-    return uptime;
+    return LinuxParser::UpTime(pid);
 }
 
 //Overload the "less than" comparison operator for Process objects
